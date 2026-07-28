@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket de Venta</title>
+    <style>
+        body {
+            background-color: #e2e8f0;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .ticket {
+            background: #ffffff;
+            width: 100%;
+            max-width: 320px;
+            padding: 20px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            color: #000000;
+            box-sizing: border-box;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-right {
+            text-align: right;
+        }
+        h2, h3, p {
+            margin: 4px 0;
+        }
+        .logo-container {
+            margin-bottom: 8px;
+            display: none; /* Oculto por defecto si no hay logo */
+        }
+        .logo-img {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+        .store-name {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .store-info {
+            font-size: 11px;
+            display: none; /* Oculto por defecto si está vacío */
+        }
+        .ticket-info, .totals, .footer {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .divider {
+            border-top: 1px dashed #000000;
+            margin: 10px 0;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .items-table th {
+            border-bottom: 1px solid #000000;
+            text-align: left;
+            padding-bottom: 4px;
+        }
+        .items-table td {
+            padding: 4px 0;
+            vertical-align: top;
+        }
+        .total-row {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .status-badge {
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            padding: 4px;
+            border: 1px dashed #000;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ticket">
+  <!-- Cabecera del Negocio -->
+  <div class="text-center">
+    <div class="logo-container" id="divLogoContainer">
+      <img id="imgLogo" src="" alt="Logo" class="logo-img">
+    </div>
+    <!-- Valores por defecto restaurados -->
+    <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
+    <div style="font-size: 11px;" id="lblSubHeader">Comanda / Nota de Consumo</div>
+    <div class="store-info" id="lblTelefono"></div>
+    <div class="store-info" id="lblDomicilio"></div>
+    <div style="font-size: 10px; margin-top: 4px;">--------------------------------</div>
+  </div>
+
+  <!-- Datos Generales -->
+  <div class="ticket-info" style="margin-top: 8px;">
+    <div><strong>Mesa/Etiqueta:</strong> <span id="lblEtiqueta">--</span></div>
+    <div><strong>Fecha:</strong> <span id="lblFecha">--</span></div>
+  </div>
+
+  <div id="divEstatus" class="status-badge">ESTADO: PENDIENTE</div>
+
+  <div class="divider"></div>
+
+  <!-- Tabla de Productos -->
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th>CANT / DESCRIPCIÓN</th>
+        <th class="text-right">IMP.</th>
+      </tr>
+    </thead>
+    <tbody id="tablaItems">
+      <!-- Los items se cargan por URL -->
+    </tbody>
+  </table>
+
+  <div class="divider"></div>
+
+  <!-- Totales -->
+  <table class="items-table">
+    <tr class="total-row">
+      <td>TOTAL A PAGAR:</td>
+      <td class="text-right" id="lblTotal">$0.00</td>
+    </tr>
+  </table>
+
+  <div class="divider"></div>
+
+  <!-- Pie de Ticket -->
+  <div class="text-center footer" style="font-size: 11px;">
+    <p>¡Gracias por su preferencia!</p>
+    <p>Conserve este ticket</p>
+  </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    
+    // Parámetros opcionales del negocio
+    const logoUrl = params.get('logo');
+    const negocio = params.get('negocio');
+    const telefono = params.get('telefono');
+    const domicilio = params.get('domicilio');
+
+    // Datos de la venta
+    const etiqueta = params.get('etiqueta') || 'MOSTRADOR';
+    const estatus = params.get('estatus') || 'PENDIENTE';
+    const fecha = params.get('fecha') || '--';
+    const total = params.get('total') || '0.00';
+    const itemsParam = params.get('items') || '';
+
+    // Validar y mostrar Logo (si existe)
+    if (logoUrl && logoUrl.trim() !== '') {
+        document.getElementById('imgLogo').src = logoUrl;
+        document.getElementById('divLogoContainer').style.display = 'block';
+    }
+
+    // Si mandan un nombre de negocio por URL, reemplaza el texto por defecto
+    if (negocio && negocio.trim() !== '') {
+        document.getElementById('lblNegocio').innerText = negocio;
+    }
+
+    // Validar y mostrar Teléfono (si existe)
+    if (telefono && telefono.trim() !== '') {
+        const elTel = document.getElementById('lblTelefono');
+        elTel.innerText = 'Tel: ' + telefono;
+        elTel.style.display = 'block';
+    }
+
+    // Validar y mostrar Domicilio (si existe)
+    if (domicilio && domicilio.trim() !== '') {
+        const elDom = document.getElementById('lblDomicilio');
+        elDom.innerText = domicilio;
+        elDom.style.display = 'block';
+    }
+
+    // Asignar datos de la venta
+    document.getElementById('lblEtiqueta').innerText = etiqueta;
+    document.getElementById('lblFecha').innerText = fecha;
+    document.getElementById('lblTotal').innerText = '$' + total;
+    
+    const badgeEstatus = document.getElementById('divEstatus');
+    badgeEstatus.innerText = 'ESTADO: ' + estatus.toUpperCase();
+
+    if (estatus.toUpperCase().includes('CONCLUIDA')) {
+        badgeEstatus.style.background = '#000';
+        badgeEstatus.style.color = '#fff';
+    }
+
+    const tbody = document.getElementById('tablaItems');
+    if (itemsParam) {
+        const listaItems = itemsParam.split('|'); 
+        listaItems.forEach(item => {
+            const partes = item.split(','); 
+            if(partes.length >= 2) {
+                let tr = document.createElement('tr');
+                let tdProd = document.createElement('td');
+                let tdPrecio = document.createElement('td');
+                tdPrecio.className = 'text-right';
+                
+                tdProd.innerText = partes[0].trim();
+                tdPrecio.innerText = '$' + partes[1].trim();
+                
+                tr.appendChild(tdProd);
+                tr.appendChild(tdPrecio);
+                tbody.appendChild(tr);
+            }
+        });
+    } else {
+        let tr = document.createElement('tr');
+        let td = document.createElement('td');
+        td.colSpan = 2;
+        td.className = 'text-center';
+        td.innerText = "Sin items registrados";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    }
+</script>
+
+</body>
+</html>
