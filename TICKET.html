@@ -142,7 +142,6 @@
     const queryString = window.location.search;
     const params = new URLSearchParams(queryString);
     
-    // Función segura para decodificar textos de la URL
     function getParam(name) {
         const val = params.get(name);
         return val ? decodeURIComponent(val) : '';
