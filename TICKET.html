@@ -109,7 +109,6 @@
     let itemsParam = obtenerParametro('items');
     let logoUrl = obtenerParametro('logo');
 
-    // Mostrar Logo si viene en la URL
     if (logoUrl && logoUrl.trim() !== '') {
         let img = document.getElementById('imgLogo');
         img.src = logoUrl;
@@ -143,7 +142,11 @@
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
             if (textoLimpio !== '') {
-                let textoConPrecio = textoLimpio.replace(/(\s)(\d+)$/, '$1$$$2');
+                // Reemplaza asteriscos generados por AppSheet por espacios limpios
+                let textoSinAsteriscos = textoLimpio.replace(/\*/g, ' ');
+                // Asegura que el número final tenga el formato de precio con signo de pesos ($)
+                let textoConPrecio = textoSinAsteriscos.replace(/(\s)(\d+)$/, '$1$$$2');
+
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
                 td.innerText = textoConPrecio;
