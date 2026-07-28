@@ -45,8 +45,8 @@
   <div class="text-center">
     <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
     <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
-    <div class="store-info" id="lblTelefono" style="display:block;"></div>
-    <div class="store-info" id="lblDomicilio" style="display:block;"></div>
+    <div class="store-info" id="lblTelefono"></div>
+    <div class="store-info" id="lblDomicilio"></div>
     <div style="font-size: 10px; margin-top: 4px;">--------------------------------</div>
   </div>
 
@@ -87,49 +87,56 @@
 </div>
 
 <script>
-    // Extrae la URL completa de manera cruda y la decodifica por completo
-    const urlCompleta = decodeURIComponent(window.location.href);
-
-    // Función directa para sacar el valor de cualquier parámetro de la URL sin fallar
-    function getParametroCrudo(nombre) {
-        const regex = new RegExp('[?&]' + nombre + '=([^&#]*)');
-        const resultados = regex.exec(urlCompleta);
-        return resultados ? decodeURIComponent(resultados[1].replace(/\+/g, ' ')) : '';
+    // Función infalible para extraer parámetros analizando la URL completa como texto plano
+    function obtenerParametro(nombre) {
+        let url = window.location.href;
+        let regex = new RegExp('[?&]' + nombre + '=([^&#]*)', 'i');
+        let resultado = regex.exec(url);
+        return resultado ? decodeURIComponent(resultado[1].replace(/\+/g, ' ')) : '';
     }
 
-    // Rellenar datos generales
-    document.getElementById('lblNegocio').innerText = getParametroCrudo('negocio') || 'SISTEMA DE VENTAS';
-    
-    const tel = getParametroCrudo('telefono');
-    if(tel) document.getElementById('lblTelefono').innerText = 'Tel: ' + tel;
-    
-    const dom = getParametroCrudo('domicilio');
-    if(dom) document.getElementById('lblDomicilio').innerText = dom;
+    // Extraer valores
+    let negocio = obtenerParametro('negocio');
+    let telefono = obtenerParametro('telefono');
+    let domicilio = obtenerParametro('domicilio');
+    let etiqueta = obtenerParametro('etiqueta');
+    let fecha = obtenerParametro('fecha');
+    let total = obtenerParametro('total');
+    let estatus = obtenerParametro('estatus');
+    let itemsParam = obtenerParametro('items');
 
-    document.getElementById('lblEtiqueta').innerText = getParametroCrudo('etiqueta') || 'MOSTRADOR';
-    document.getElementById('lblFecha').innerText = getParametroCrudo('fecha') || '--';
-    document.getElementById('lblTotal').innerText = '$' + (getParametroCrudo('total') || '0.00');
+    // Inyectar en pantalla
+    document.getElementById('lblNegocio').innerText = negocio || 'SISTEMA DE VENTAS';
     
-    const estatus = getParametroCrudo('estatus') || 'PENDIENTE';
-    document.getElementById('divEstatus').innerText = 'ESTADO: ' + estatus.toUpperCase();
+    if(telefono) {
+        let elTel = document.getElementById('lblTelefono');
+        elTel.innerText = 'Tel: ' + telefono;
+        elTel.style.display = 'block';
+    }
+    
+    if(domicilio) {
+        let elDom = document.getElementById('lblDomicilio');
+        elDom.innerText = domicilio;
+        elDom.style.display = 'block';
+    }
 
-    // Procesar la barra vertical y los items de forma directa
-    const itemsParam = getParametroCrudo('items');
-    const tbody = document.getElementById('tablaItems');
+    document.getElementById('lblEtiqueta').innerText = etiqueta || 'MOSTRADOR';
+    document.getElementById('lblFecha').innerText = fecha || '--';
+    document.getElementById('lblTotal').innerText = '$' + (total || '0.00');
+    document.getElementById('divEstatus').innerText = 'ESTADO: ' + (estatus ? estatus.toUpperCase() : 'PENDIENTE');
 
-    if (itemsParam && itemsParam.trim() !== '') {
-        // Divide usando la barra vertical real que viene en la URL
+    // Pintar los items
+    let tbody = document.getElementById('tablaItems');
+    tbody.innerHTML = ''; // Limpiar cualquier texto previo
+
+    if (itemsParam) {
         let listaItems = itemsParam.split('|');
-
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
             if (textoLimpio !== '') {
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
-                
-                // Muestra cada renglón respetando tus espacios
                 td.innerText = textoLimpio;
-                
                 tr.appendChild(td);
                 tbody.appendChild(tr);
             }
@@ -137,7 +144,7 @@
     } else {
         let tr = document.createElement('tr');
         let td = document.createElement('td');
-        td.innerText = "Sin items en la URL";
+        td.innerText = "ALERTA: No se detectó el parámetro 'items'";
         tr.appendChild(td);
         tbody.appendChild(tr);
     }
