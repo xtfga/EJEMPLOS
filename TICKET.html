@@ -36,7 +36,7 @@
         }
         .logo-container {
             margin-bottom: 8px;
-            display: none; /* Oculto por defecto si no hay logo */
+            display: none;
         }
         .logo-img {
             max-width: 80px;
@@ -49,7 +49,7 @@
         }
         .store-info {
             font-size: 11px;
-            display: none; /* Oculto por defecto si está vacío */
+            display: none;
         }
         .ticket-info, .totals, .footer {
             font-size: 12px;
@@ -90,12 +90,10 @@
 <body>
 
 <div class="ticket">
-  <!-- Cabecera del Negocio -->
   <div class="text-center">
     <div class="logo-container" id="divLogoContainer">
       <img id="imgLogo" src="" alt="Logo" class="logo-img">
     </div>
-    <!-- Valores por defecto restaurados -->
     <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
     <div style="font-size: 11px;" id="lblSubHeader">Comanda / Nota de Consumo</div>
     <div class="store-info" id="lblTelefono"></div>
@@ -103,7 +101,6 @@
     <div style="font-size: 10px; margin-top: 4px;">--------------------------------</div>
   </div>
 
-  <!-- Datos Generales -->
   <div class="ticket-info" style="margin-top: 8px;">
     <div><strong>Mesa/Etiqueta:</strong> <span id="lblEtiqueta">--</span></div>
     <div><strong>Fecha:</strong> <span id="lblFecha">--</span></div>
@@ -113,7 +110,6 @@
 
   <div class="divider"></div>
 
-  <!-- Tabla de Productos -->
   <table class="items-table">
     <thead>
       <tr>
@@ -122,13 +118,11 @@
       </tr>
     </thead>
     <tbody id="tablaItems">
-      <!-- Los items se cargan por URL -->
     </tbody>
   </table>
 
   <div class="divider"></div>
 
-  <!-- Totales -->
   <table class="items-table">
     <tr class="total-row">
       <td>TOTAL A PAGAR:</td>
@@ -138,7 +132,6 @@
 
   <div class="divider"></div>
 
-  <!-- Pie de Ticket -->
   <div class="text-center footer" style="font-size: 11px;">
     <p>¡Gracias por su preferencia!</p>
     <p>Conserve este ticket</p>
@@ -146,47 +139,47 @@
 </div>
 
 <script>
-    const params = new URLSearchParams(window.location.search);
+    const queryString = window.location.search;
+    const params = new URLSearchParams(queryString);
     
-    // Parámetros opcionales del negocio
-    const logoUrl = params.get('logo');
-    const negocio = params.get('negocio');
-    const telefono = params.get('telefono');
-    const domicilio = params.get('domicilio');
+    // Función segura para decodificar textos de la URL
+    function getParam(name) {
+        const val = params.get(name);
+        return val ? decodeURIComponent(val) : '';
+    }
 
-    // Datos de la venta
-    const etiqueta = params.get('etiqueta') || 'MOSTRADOR';
-    const estatus = params.get('estatus') || 'PENDIENTE';
-    const fecha = params.get('fecha') || '--';
-    const total = params.get('total') || '0.00';
-    const itemsParam = params.get('items') || '';
+    const logoUrl = getParam('logo');
+    const negocio = getParam('negocio');
+    const telefono = getParam('telefono');
+    const domicilio = getParam('domicilio');
 
-    // Validar y mostrar Logo (si existe)
-    if (logoUrl && logoUrl.trim() !== '') {
+    const etiqueta = getParam('etiqueta') || 'MOSTRADOR';
+    const estatus = getParam('estatus') || 'PENDIENTE';
+    const fecha = getParam('fecha') || '--';
+    const total = getParam('total') || '0.00';
+    const itemsParam = getParam('items');
+
+    if (logoUrl) {
         document.getElementById('imgLogo').src = logoUrl;
         document.getElementById('divLogoContainer').style.display = 'block';
     }
 
-    // Si mandan un nombre de negocio por URL, reemplaza el texto por defecto
-    if (negocio && negocio.trim() !== '') {
+    if (negocio) {
         document.getElementById('lblNegocio').innerText = negocio;
     }
 
-    // Validar y mostrar Teléfono (si existe)
-    if (telefono && telefono.trim() !== '') {
+    if (telefono) {
         const elTel = document.getElementById('lblTelefono');
         elTel.innerText = 'Tel: ' + telefono;
         elTel.style.display = 'block';
     }
 
-    // Validar y mostrar Domicilio (si existe)
-    if (domicilio && domicilio.trim() !== '') {
+    if (domicilio) {
         const elDom = document.getElementById('lblDomicilio');
         elDom.innerText = domicilio;
         elDom.style.display = 'block';
     }
 
-    // Asignar datos de la venta
     document.getElementById('lblEtiqueta').innerText = etiqueta;
     document.getElementById('lblFecha').innerText = fecha;
     document.getElementById('lblTotal').innerText = '$' + total;
@@ -200,7 +193,7 @@
     }
 
     const tbody = document.getElementById('tablaItems');
-    if (itemsParam) {
+    if (itemsParam && itemsParam.trim() !== '') {
         const listaItems = itemsParam.split('|'); 
         listaItems.forEach(item => {
             const partes = item.split(','); 
