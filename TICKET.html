@@ -29,6 +29,7 @@
         .text-right { text-align: right; }
         h2, h3, p { margin: 4px 0; }
         .store-name { font-size: 16px; font-weight: bold; }
+        .store-info { font-size: 11px; display: none; }
         .ticket-info, .totals, .footer { font-size: 12px; margin-bottom: 10px; }
         .divider { border-top: 1px dashed #000000; margin: 10px 0; }
         .items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -44,6 +45,8 @@
   <div class="text-center">
     <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
     <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
+    <div class="store-info" id="lblTelefono" style="display:block;"></div>
+    <div class="store-info" id="lblDomicilio" style="display:block;"></div>
     <div style="font-size: 10px; margin-top: 4px;">--------------------------------</div>
   </div>
 
@@ -63,7 +66,6 @@
       </tr>
     </thead>
     <tbody id="tablaItems">
-      <!-- Los items se inyectarán aquí -->
     </tbody>
   </table>
 
@@ -85,24 +87,38 @@
 </div>
 
 <script>
-    // Captura segura de parámetros de la URL
-    const params = new URLSearchParams(window.location.search);
+    // Extrae la URL completa de manera cruda y la decodifica por completo
+    const urlCompleta = decodeURIComponent(window.location.href);
 
-    // Rellena los campos principales de texto
-    document.getElementById('lblNegocio').innerText = params.get('negocio') || 'SISTEMA DE VENTAS';
-    document.getElementById('lblEtiqueta').innerText = params.get('etiqueta') || 'MOSTRADOR';
-    document.getElementById('lblFecha').innerText = params.get('fecha') || '--';
-    document.getElementById('lblTotal').innerText = params.get('total') || '$0.00';
+    // Función directa para sacar el valor de cualquier parámetro de la URL sin fallar
+    function getParametroCrudo(nombre) {
+        const regex = new RegExp('[?&]' + nombre + '=([^&#]*)');
+        const resultados = regex.exec(urlCompleta);
+        return resultados ? decodeURIComponent(resultados[1].replace(/\+/g, ' ')) : '';
+    }
+
+    // Rellenar datos generales
+    document.getElementById('lblNegocio').innerText = getParametroCrudo('negocio') || 'SISTEMA DE VENTAS';
     
-    const estatus = params.get('estatus') || 'PENDIENTE';
+    const tel = getParametroCrudo('telefono');
+    if(tel) document.getElementById('lblTelefono').innerText = 'Tel: ' + tel;
+    
+    const dom = getParametroCrudo('domicilio');
+    if(dom) document.getElementById('lblDomicilio').innerText = dom;
+
+    document.getElementById('lblEtiqueta').innerText = getParametroCrudo('etiqueta') || 'MOSTRADOR';
+    document.getElementById('lblFecha').innerText = getParametroCrudo('fecha') || '--';
+    document.getElementById('lblTotal').innerText = '$' + (getParametroCrudo('total') || '0.00');
+    
+    const estatus = getParametroCrudo('estatus') || 'PENDIENTE';
     document.getElementById('divEstatus').innerText = 'ESTADO: ' + estatus.toUpperCase();
 
-    // Procesa los items de manera directa
-    const itemsParam = params.get('items');
+    // Procesar la barra vertical y los items de forma directa
+    const itemsParam = getParametroCrudo('items');
     const tbody = document.getElementById('tablaItems');
 
-    if (itemsParam) {
-        // Divide los elementos usando la barra vertical que manda AppSheet
+    if (itemsParam && itemsParam.trim() !== '') {
+        // Divide usando la barra vertical real que viene en la URL
         let listaItems = itemsParam.split('|');
 
         listaItems.forEach(item => {
@@ -111,7 +127,7 @@
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
                 
-                // Muestra exactamente el texto, respetando tus guiones y formato
+                // Muestra cada renglón respetando tus espacios
                 td.innerText = textoLimpio;
                 
                 tr.appendChild(td);
@@ -121,7 +137,7 @@
     } else {
         let tr = document.createElement('tr');
         let td = document.createElement('td');
-        td.innerText = "No llegaron items en la URL";
+        td.innerText = "Sin items en la URL";
         tr.appendChild(td);
         tbody.appendChild(tr);
     }
