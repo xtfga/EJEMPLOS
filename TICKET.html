@@ -109,6 +109,7 @@
     let itemsParam = obtenerParametro('items');
     let logoUrl = obtenerParametro('logo');
 
+    // Mostrar Logo si viene en la URL
     if (logoUrl && logoUrl.trim() !== '') {
         let img = document.getElementById('imgLogo');
         img.src = logoUrl;
@@ -142,14 +143,22 @@
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
             if (textoLimpio !== '') {
-                // Reemplaza asteriscos generados por AppSheet por espacios limpios
-                let textoSinAsteriscos = textoLimpio.replace(/\*/g, ' ');
-                // Asegura que el número final tenga el formato de precio con signo de pesos ($)
-                let textoConPrecio = textoSinAsteriscos.replace(/(\s)(\d+)$/, '$1$$$2');
+                // Reemplaza de forma directa cualquier asterisco por un espacio
+                let textoSinAsterisco = textoLimpio.split('*').join(' ');
+                
+                // Separa la última parte para ponerle el signo de pesos ($)
+                let partes = textoSinAsterisco.trim().split(' ');
+                let ultimoElemento = partes[partes.length - 1];
+                
+                let textoFinal = textoSinAsterisco;
+                if (!isNaN(ultimoElemento) && ultimoElemento !== '') {
+                    partes[partes.length - 1] = '$' + ultimoElemento;
+                    textoFinal = partes.join(' ');
+                }
 
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
-                td.innerText = textoConPrecio;
+                td.innerText = textoFinal;
                 tr.appendChild(td);
                 tbody.appendChild(tr);
             }
