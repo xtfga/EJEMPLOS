@@ -67,8 +67,7 @@
   <table class="items-table">
     <thead>
       <tr>
-        <th>DESCRIPCIÓN</th>
-        <th class="text-right">IMP.</th>
+        <th>DESCRIPCIÓN / CONSUMO</th>
       </tr>
     </thead>
     <tbody id="tablaItems">
@@ -104,7 +103,7 @@
     document.getElementById('lblNegocio').innerText = getParam('negocio') || 'SISTEMA DE VENTAS';
     
     const tel = getParam('telefono');
-    if(tel) { document.getElementById('lblTelefono').innerText = 'Tel: ' + tel; document.getElementById('lblTelefono').style.display = 'block'; }
+    if(tel) { document.getElementById('lblTelefono').innerText = 'Tel: ' + tel; document.getElementById('lblTelefono'].style.display = 'block'; }
     
     const dom = getParam('domicilio');
     if(dom) { document.getElementById('lblDomicilio').innerText = dom; document.getElementById('lblDomicilio').style.display = 'block'; }
@@ -123,37 +122,28 @@
     const tbody = document.getElementById('tablaItems');
 
     if (itemsParam && itemsParam.trim() !== '') {
-        // Limpia comas sobrantes que AppSheet mete al unir
         let cadenaLimpia = itemsParam.replace(/,\s*(?=[0-9]+x)/gi, '');
         const listaItems = cadenaLimpia.split('|');
 
         listaItems.forEach(item => {
-            if (!item.trim()) return;
-            let tr = document.createElement('tr');
-            let tdProd = document.createElement('td');
-            let tdPrecio = document.createElement('td');
-            tdPrecio.className = 'text-right';
+            let textoItem = item.trim();
+            if (!textoItem) return;
 
-            // Separa el texto usando el asterisco (*) como frontera segura
-            let partes = item.split('*');
-            if (partes.length >= 2) {
-                tdProd.innerText = partes[0].trim();
-                // Aquí el navegador le inyecta el signo de pesos a la fuerza de manera limpia
-                tdPrecio.innerText = '$' + partes[1].trim();
-            } else {
-                tdProd.innerText = item.trim();
-                tdPrecio.innerText = '';
-            }
+            let tr = document.createElement('tr');
+            let td = document.createElement('td');
+
+            // Encuentra el último número de la línea y le antepone el signo de pesos sin borrar tus guiones
+            let textoConPesos = textoItem.replace(/(\s)(\d+)$/, '$1$$$2');
+
+            // Respeta todos tus espacios, guiones y estructura original
+            td.innerHTML = textoConPesos.replace(/ /g, '&nbsp;');
             
-            tr.appendChild(tdProd);
-            tr.appendChild(tdPrecio);
+            tr.appendChild(td);
             tbody.appendChild(tr);
         });
     } else {
         let tr = document.createElement('tr');
         let td = document.createElement('td');
-        td.colSpan = 2;
-        td.className = 'text-center';
         td.innerText = "Sin items registrados";
         tr.appendChild(td);
         tbody.appendChild(tr);
