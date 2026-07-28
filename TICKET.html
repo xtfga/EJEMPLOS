@@ -28,6 +28,7 @@
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         h2, h3, p { margin: 4px 0; }
+        .store-logo { max-width: 120px; max-height: 60px; margin-bottom: 5px; object-fit: contain; }
         .store-name { font-size: 16px; font-weight: bold; }
         .store-info { font-size: 11px; display: none; }
         .ticket-info, .totals, .footer { font-size: 12px; margin-bottom: 10px; }
@@ -43,6 +44,10 @@
 
 <div class="ticket">
   <div class="text-center">
+    <!-- Contenedor del Logo -->
+    <div id="divLogoContainer" style="display: none;">
+        <img id="imgLogo" class="store-logo" src="" alt="Logo Negocio">
+    </div>
     <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
     <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
     <div class="store-info" id="lblTelefono"></div>
@@ -102,6 +107,14 @@
     let total = obtenerParametro('total');
     let estatus = obtenerParametro('estatus');
     let itemsParam = obtenerParametro('items');
+    let logoUrl = obtenerParametro('logo');
+
+    // Mostrar Logo si viene en la URL
+    if (logoUrl && logoUrl.trim() !== '') {
+        let img = document.getElementById('imgLogo');
+        img.src = logoUrl;
+        document.getElementById('divLogoContainer').style.display = 'block';
+    }
 
     document.getElementById('lblNegocio').innerText = negocio || 'SISTEMA DE VENTAS';
     
@@ -130,10 +143,7 @@
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
             if (textoLimpio !== '') {
-                // Inserta automáticamente el signo de pesos antes del número final si no lo tiene
-                // Ejemplo: transforma "1x Quesadilla de Bistec 25" en "1x Quesadilla de Bistec $25"
                 let textoConPrecio = textoLimpio.replace(/(\s)(\d+)$/, '$1$$$2');
-
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
                 td.innerText = textoConPrecio;
