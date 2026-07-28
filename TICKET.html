@@ -193,22 +193,27 @@
 
     const tbody = document.getElementById('tablaItems');
     if (itemsParam && itemsParam.trim() !== '') {
-        const listaItems = itemsParam.split('|'); 
+        const listaItems = itemsParam.includes('|') ? itemsParam.split('|') : [itemsParam]; 
+        
         listaItems.forEach(item => {
-            const partes = item.split(','); 
-            if(partes.length >= 2) {
-                let tr = document.createElement('tr');
-                let tdProd = document.createElement('td');
-                let tdPrecio = document.createElement('td');
-                tdPrecio.className = 'text-right';
-                
+            if (!item.trim()) return;
+            let tr = document.createElement('tr');
+            let tdProd = document.createElement('td');
+            let tdPrecio = document.createElement('td');
+            tdPrecio.className = 'text-right';
+            
+            if (item.includes(',')) {
+                const partes = item.split(',');
                 tdProd.innerText = partes[0].trim();
                 tdPrecio.innerText = '$' + partes[1].trim();
-                
-                tr.appendChild(tdProd);
-                tr.appendChild(tdPrecio);
-                tbody.appendChild(tr);
+            } else {
+                tdProd.innerText = item.trim();
+                tdPrecio.innerText = '';
             }
+            
+            tr.appendChild(tdProd);
+            tr.appendChild(tdPrecio);
+            tbody.appendChild(tr);
         });
     } else {
         let tr = document.createElement('tr');
