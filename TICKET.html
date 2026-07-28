@@ -28,15 +28,12 @@
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         h2, h3, p { margin: 4px 0; }
-        .logo-container { margin-bottom: 8px; display: none; }
-        .logo-img { max-width: 80px; max-height: 80px; object-fit: contain; }
         .store-name { font-size: 16px; font-weight: bold; }
-        .store-info { font-size: 11px; display: none; }
         .ticket-info, .totals, .footer { font-size: 12px; margin-bottom: 10px; }
         .divider { border-top: 1px dashed #000000; margin: 10px 0; }
         .items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .items-table th { border-bottom: 1px solid #000000; text-align: left; padding-bottom: 4px; }
-        .items-table td { padding: 4px 0; vertical-align: top; }
+        .items-table td { padding: 4px 0; vertical-align: top; white-space: pre-wrap; }
         .total-row { font-weight: bold; font-size: 14px; }
         .status-badge { font-weight: bold; text-align: center; margin: 10px 0; padding: 4px; border: 1px dashed #000; font-size: 11px; }
     </style>
@@ -45,13 +42,8 @@
 
 <div class="ticket">
   <div class="text-center">
-    <div class="logo-container" id="divLogoContainer">
-      <img id="imgLogo" src="" alt="Logo" class="logo-img">
-    </div>
     <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
-    <div style="font-size: 11px;" id="lblSubHeader">Comanda / Nota de Consumo</div>
-    <div class="store-info" id="lblTelefono"></div>
-    <div class="store-info" id="lblDomicilio"></div>
+    <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
     <div style="font-size: 10px; margin-top: 4px;">--------------------------------</div>
   </div>
 
@@ -71,6 +63,7 @@
       </tr>
     </thead>
     <tbody id="tablaItems">
+      <!-- Los items se inyectarán aquí -->
     </tbody>
   </table>
 
@@ -92,59 +85,43 @@
 </div>
 
 <script>
-    const queryString = window.location.search;
-    const params = new URLSearchParams(queryString);
-    
-    function getParam(name) {
-        const val = params.get(name);
-        return val ? decodeURIComponent(val) : '';
-    }
+    // Captura segura de parámetros de la URL
+    const params = new URLSearchParams(window.location.search);
 
-    document.getElementById('lblNegocio').innerText = getParam('negocio') || 'SISTEMA DE VENTAS';
+    // Rellena los campos principales de texto
+    document.getElementById('lblNegocio').innerText = params.get('negocio') || 'SISTEMA DE VENTAS';
+    document.getElementById('lblEtiqueta').innerText = params.get('etiqueta') || 'MOSTRADOR';
+    document.getElementById('lblFecha').innerText = params.get('fecha') || '--';
+    document.getElementById('lblTotal').innerText = params.get('total') || '$0.00';
     
-    const tel = getParam('telefono');
-    if(tel) { document.getElementById('lblTelefono').innerText = 'Tel: ' + tel; document.getElementById('lblTelefono'].style.display = 'block'; }
-    
-    const dom = getParam('domicilio');
-    if(dom) { document.getElementById('lblDomicilio').innerText = dom; document.getElementById('lblDomicilio').style.display = 'block'; }
+    const estatus = params.get('estatus') || 'PENDIENTE';
+    document.getElementById('divEstatus').innerText = 'ESTADO: ' + estatus.toUpperCase();
 
-    document.getElementById('lblEtiqueta').innerText = getParam('etiqueta') || 'MOSTRADOR';
-    document.getElementById('lblFecha').innerText = getParam('fecha') || '--';
-    
-    let totalVal = getParam('total').replace('$', '').trim();
-    document.getElementById('lblTotal').innerText = '$' + (totalVal || '0.00');
-    
-    const estatus = getParam('estatus') || 'PENDIENTE';
-    const badgeEstatus = document.getElementById('divEstatus');
-    badgeEstatus.innerText = 'ESTADO: ' + estatus.toUpperCase();
-
-    const itemsParam = getParam('items');
+    // Procesa los items de manera directa
+    const itemsParam = params.get('items');
     const tbody = document.getElementById('tablaItems');
 
-    if (itemsParam && itemsParam.trim() !== '') {
-        let cadenaLimpia = itemsParam.replace(/,\s*(?=[0-9]+x)/gi, '');
-        const listaItems = cadenaLimpia.split('|');
+    if (itemsParam) {
+        // Divide los elementos usando la barra vertical que manda AppSheet
+        let listaItems = itemsParam.split('|');
 
         listaItems.forEach(item => {
-            let textoItem = item.trim();
-            if (!textoItem) return;
-
-            let tr = document.createElement('tr');
-            let td = document.createElement('td');
-
-            // Encuentra el último número de la línea y le antepone el signo de pesos sin borrar tus guiones
-            let textoConPesos = textoItem.replace(/(\s)(\d+)$/, '$1$$$2');
-
-            // Respeta todos tus espacios, guiones y estructura original
-            td.innerHTML = textoConPesos.replace(/ /g, '&nbsp;');
-            
-            tr.appendChild(td);
-            tbody.appendChild(tr);
+            let textoLimpio = item.trim();
+            if (textoLimpio !== '') {
+                let tr = document.createElement('tr');
+                let td = document.createElement('td');
+                
+                // Muestra exactamente el texto, respetando tus guiones y formato
+                td.innerText = textoLimpio;
+                
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+            }
         });
     } else {
         let tr = document.createElement('tr');
         let td = document.createElement('td');
-        td.innerText = "Sin items registrados";
+        td.innerText = "No llegaron items en la URL";
         tr.appendChild(td);
         tbody.appendChild(tr);
     }
