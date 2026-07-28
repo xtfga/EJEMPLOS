@@ -25,66 +25,20 @@
             color: #000000;
             box-sizing: border-box;
         }
-        .text-center {
-            text-align: center;
-        }
-        .text-right {
-            text-align: right;
-        }
-        h2, h3, p {
-            margin: 4px 0;
-        }
-        .logo-container {
-            margin-bottom: 8px;
-            display: none;
-        }
-        .logo-img {
-            max-width: 80px;
-            max-height: 80px;
-            object-fit: contain;
-        }
-        .store-name {
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .store-info {
-            font-size: 11px;
-            display: none;
-        }
-        .ticket-info, .totals, .footer {
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-        .divider {
-            border-top: 1px dashed #000000;
-            margin: 10px 0;
-        }
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-        .items-table th {
-            border-bottom: 1px solid #000000;
-            text-align: left;
-            padding-bottom: 4px;
-        }
-        .items-table td {
-            padding: 4px 0;
-            vertical-align: top;
-        }
-        .total-row {
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .status-badge {
-            font-weight: bold;
-            text-align: center;
-            margin: 10px 0;
-            padding: 4px;
-            border: 1px dashed #000;
-            font-size: 11px;
-        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        h2, h3, p { margin: 4px 0; }
+        .logo-container { margin-bottom: 8px; display: none; }
+        .logo-img { max-width: 80px; max-height: 80px; object-fit: contain; }
+        .store-name { font-size: 16px; font-weight: bold; }
+        .store-info { font-size: 11px; display: none; }
+        .ticket-info, .totals, .footer { font-size: 12px; margin-bottom: 10px; }
+        .divider { border-top: 1px dashed #000000; margin: 10px 0; }
+        .items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .items-table th { border-bottom: 1px solid #000000; text-align: left; padding-bottom: 4px; }
+        .items-table td { padding: 4px 0; vertical-align: top; }
+        .total-row { font-weight: bold; font-size: 14px; }
+        .status-badge { font-weight: bold; text-align: center; margin: 10px 0; padding: 4px; border: 1px dashed #000; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -147,65 +101,42 @@
         return val ? decodeURIComponent(val) : '';
     }
 
-    const logoUrl = getParam('logo');
-    const negocio = getParam('negocio');
-    const telefono = getParam('telefono');
-    const domicilio = getParam('domicilio');
-
-    const etiqueta = getParam('etiqueta') || 'MOSTRADOR';
-    const estatus = getParam('estatus') || 'PENDIENTE';
-    const fecha = getParam('fecha') || '--';
-    const total = getParam('total') || '0.00';
-    const itemsParam = getParam('items');
-
-    if (logoUrl) {
-        document.getElementById('imgLogo').src = logoUrl;
-        document.getElementById('divLogoContainer').style.display = 'block';
-    }
-
-    if (negocio) {
-        document.getElementById('lblNegocio').innerText = negocio;
-    }
-
-    if (telefono) {
-        const elTel = document.getElementById('lblTelefono');
-        elTel.innerText = 'Tel: ' + telefono;
-        elTel.style.display = 'block';
-    }
-
-    if (domicilio) {
-        const elDom = document.getElementById('lblDomicilio');
-        elDom.innerText = domicilio;
-        elDom.style.display = 'block';
-    }
-
-    document.getElementById('lblEtiqueta').innerText = etiqueta;
-    document.getElementById('lblFecha').innerText = fecha;
-    document.getElementById('lblTotal').innerText = '$' + total;
+    document.getElementById('lblNegocio').innerText = getParam('negocio') || 'SISTEMA DE VENTAS';
     
+    const tel = getParam('telefono');
+    if(tel) { document.getElementById('lblTelefono').innerText = 'Tel: ' + tel; document.getElementById('lblTelefono').style.display = 'block'; }
+    
+    const dom = getParam('domicilio');
+    if(dom) { document.getElementById('lblDomicilio').innerText = dom; document.getElementById('lblDomicilio').style.display = 'block'; }
+
+    document.getElementById('lblEtiqueta').innerText = getParam('etiqueta') || 'MOSTRADOR';
+    document.getElementById('lblFecha').innerText = getParam('fecha') || '--';
+    document.getElementById('lblTotal').innerText = '$' + (getParam('total') || '0.00');
+    
+    const estatus = getParam('estatus') || 'PENDIENTE';
     const badgeEstatus = document.getElementById('divEstatus');
     badgeEstatus.innerText = 'ESTADO: ' + estatus.toUpperCase();
 
-    if (estatus.toUpperCase().includes('CONCLUIDA')) {
-        badgeEstatus.style.background = '#000';
-        badgeEstatus.style.color = '#fff';
-    }
-
+    const itemsParam = getParam('items');
     const tbody = document.getElementById('tablaItems');
+
     if (itemsParam && itemsParam.trim() !== '') {
-        const listaItems = itemsParam.includes('|') ? itemsParam.split('|') : [itemsParam]; 
-        
+        // Divide estrictamente por la barra vertical que ahora sí mandas al final de cada item
+        const listaItems = itemsParam.split('|');
+
         listaItems.forEach(item => {
             if (!item.trim()) return;
             let tr = document.createElement('tr');
             let tdProd = document.createElement('td');
             let tdPrecio = document.createElement('td');
             tdPrecio.className = 'text-right';
+
+            // Busca el último espacio o símbolo de moneda para separar el texto del precio de forma limpia
+            const ultimoEspacio = item.lastIndexOf('$');
             
-            if (item.includes(',')) {
-                const partes = item.split(',');
-                tdProd.innerText = partes[0].trim();
-                tdPrecio.innerText = '$' + partes[1].trim();
+            if (ultimoEspacio !== -1) {
+                tdProd.innerText = item.substring(0, ultimoEspacio).trim();
+                tdPrecio.innerText = '$' + item.substring(ultimoEspacio + 1).trim();
             } else {
                 tdProd.innerText = item.trim();
                 tdPrecio.innerText = '';
