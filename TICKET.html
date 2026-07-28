@@ -67,8 +67,7 @@
   <table class="items-table">
     <thead>
       <tr>
-        <th>CANT / DESCRIPCIÓN</th>
-        <th class="text-right">IMP.</th>
+        <th>DESCRIPCIÓN / CONSUMO</th>
       </tr>
     </thead>
     <tbody id="tablaItems">
@@ -111,7 +110,10 @@
 
     document.getElementById('lblEtiqueta').innerText = getParam('etiqueta') || 'MOSTRADOR';
     document.getElementById('lblFecha').innerText = getParam('fecha') || '--';
-    document.getElementById('lblTotal').innerText = '$' + (getParam('total') || '0.00');
+    
+    // Limpieza segura del total general
+    let totalVal = getParam('total').replace('$', '').trim();
+    document.getElementById('lblTotal').innerText = '$' + (totalVal || '0.00');
     
     const estatus = getParam('estatus') || 'PENDIENTE';
     const badgeEstatus = document.getElementById('divEstatus');
@@ -121,36 +123,25 @@
     const tbody = document.getElementById('tablaItems');
 
     if (itemsParam && itemsParam.trim() !== '') {
-        // Divide estrictamente por la barra vertical que ahora sí mandas al final de cada item
-        const listaItems = itemsParam.split('|');
+        // Limpia las comas intermedias y decodifica por seguridad
+        let cadenaLimpia = itemsParam.replace(/,\s*(?=[0-9]+x)/gi, '');
+        
+        const listaItems = cadenaLimpia.split('|');
 
         listaItems.forEach(item => {
             if (!item.trim()) return;
             let tr = document.createElement('tr');
             let tdProd = document.createElement('td');
-            let tdPrecio = document.createElement('td');
-            tdPrecio.className = 'text-right';
-
-            // Busca el último espacio o símbolo de moneda para separar el texto del precio de forma limpia
-            const ultimoEspacio = item.lastIndexOf('$');
             
-            if (ultimoEspacio !== -1) {
-                tdProd.innerText = item.substring(0, ultimoEspacio).trim();
-                tdPrecio.innerText = '$' + item.substring(ultimoEspacio + 1).trim();
-            } else {
-                tdProd.innerText = item.trim();
-                tdPrecio.innerText = '';
-            }
+            // Fuerza a que se imprima el texto con el símbolo de pesos intacto
+            tdProd.innerText = item.trim();
             
             tr.appendChild(tdProd);
-            tr.appendChild(tdPrecio);
             tbody.appendChild(tr);
         });
     } else {
         let tr = document.createElement('tr');
         let td = document.createElement('td');
-        td.colSpan = 2;
-        td.className = 'text-center';
         td.innerText = "Sin items registrados";
         tr.appendChild(td);
         tbody.appendChild(tr);
