@@ -87,7 +87,6 @@
 </div>
 
 <script>
-    // Función infalible para extraer parámetros analizando la URL completa como texto plano
     function obtenerParametro(nombre) {
         let url = window.location.href;
         let regex = new RegExp('[?&]' + nombre + '=([^&#]*)', 'i');
@@ -95,7 +94,6 @@
         return resultado ? decodeURIComponent(resultado[1].replace(/\+/g, ' ')) : '';
     }
 
-    // Extraer valores
     let negocio = obtenerParametro('negocio');
     let telefono = obtenerParametro('telefono');
     let domicilio = obtenerParametro('domicilio');
@@ -105,7 +103,6 @@
     let estatus = obtenerParametro('estatus');
     let itemsParam = obtenerParametro('items');
 
-    // Inyectar en pantalla
     document.getElementById('lblNegocio').innerText = negocio || 'SISTEMA DE VENTAS';
     
     if(telefono) {
@@ -125,18 +122,21 @@
     document.getElementById('lblTotal').innerText = '$' + (total || '0.00');
     document.getElementById('divEstatus').innerText = 'ESTADO: ' + (estatus ? estatus.toUpperCase() : 'PENDIENTE');
 
-    // Pintar los items
     let tbody = document.getElementById('tablaItems');
-    tbody.innerHTML = ''; // Limpiar cualquier texto previo
+    tbody.innerHTML = '';
 
     if (itemsParam) {
         let listaItems = itemsParam.split('|');
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
             if (textoLimpio !== '') {
+                // Inserta automáticamente el signo de pesos antes del número final si no lo tiene
+                // Ejemplo: transforma "1x Quesadilla de Bistec 25" en "1x Quesadilla de Bistec $25"
+                let textoConPrecio = textoLimpio.replace(/(\s)(\d+)$/, '$1$$$2');
+
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
-                td.innerText = textoLimpio;
+                td.innerText = textoConPrecio;
                 tr.appendChild(td);
                 tbody.appendChild(tr);
             }
@@ -144,7 +144,7 @@
     } else {
         let tr = document.createElement('tr');
         let td = document.createElement('td');
-        td.innerText = "ALERTA: No se detectó el parámetro 'items'";
+        td.innerText = "Sin items registrados";
         tr.appendChild(td);
         tbody.appendChild(tr);
     }
