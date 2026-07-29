@@ -6,52 +6,58 @@
     <title>Ticket de Venta</title>
     <style>
         body {
-            background-color: #cbd5e1;
+            background-color: #e2e8f0;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            min-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 5px;
         }
         .ticket {
             background: #ffffff;
             width: 100%;
-            max-width: 280px;
-            padding: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+            padding: 10px 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border-radius: 4px;
             color: #000000;
             box-sizing: border-box;
-            font-size: 15px; /* Letra clara y visible */
+            font-size: 14px; /* Letras más legibles y grandes */
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        p { margin: 3px 0; }
-        .store-logo { max-width: 120px; max-height: 60px; margin-bottom: 4px; object-fit: contain; }
-        .store-name { font-size: 18px; font-weight: bold; }
-        .store-info { font-size: 12px; display: none; }
-        .ticket-info, .footer { font-size: 12px; margin-bottom: 6px; }
-        .divider { border-top: 1px dashed #000000; margin: 6px 0; }
-        .items-table { width: 100%; border-collapse: collapse; font-size: 15px; }
-        .items-table th { border-bottom: 1px solid #000000; text-align: left; padding-bottom: 3px; font-size: 13px; }
-        .items-table td { padding: 4px 0; vertical-align: top; white-space: pre-wrap; }
-        .total-row { font-weight: bold; font-size: 17px; }
-        .status-badge { font-weight: bold; text-align: center; margin: 6px 0; padding: 4px; border: 1px dashed #000; font-size: 12px; }
+        h2, h3, p { margin: 4px 0; }
+        .store-logo { max-width: 130px; max-height: 70px; margin-bottom: 5px; object-fit: contain; }
+        .store-name { font-size: 18px; font-weight: bold; } /* Nombre del negocio más destacado */
+        .store-info { font-size: 13px; display: none; }
+        .ticket-info, .totals, .footer { font-size: 13px; margin-bottom: 8px; }
+        .divider { border-top: 1px dashed #000000; margin: 8px 0; }
+        .items-table { width: 100%; border-collapse: collapse; font-size: 14px; } /* Texto de los tacos más grande */
+        .items-table th { border-bottom: 1px solid #000000; text-align: left; padding-bottom: 4px; }
+        .items-table td { padding: 5px 0; vertical-align: top; white-space: pre-wrap; }
+        .total-row { font-weight: bold; font-size: 16px; } /* Total más grande */
+        .status-badge { font-weight: bold; text-align: center; margin: 8px 0; padding: 5px; border: 1px dashed #000; font-size: 12px; }
 
-        /* ESTRICTO PARA EL MOMENTO DE IMPRIMIR */
+        /* CONFIGURACIÓN EXCLUSIVA PARA LA IMPRESORA TÉRMICA */
         @media print {
+            @page {
+                size: 80mm auto; /* Ajusta el ancho a papel térmico estándar de 80mm */
+                margin: 0;       /* Elimina márgenes de hoja carta */
+            }
             body {
                 background-color: #ffffff;
+                display: block;
                 padding: 0;
                 margin: 0;
             }
             .ticket {
                 box-shadow: none;
-                width: 100% !important;
                 max-width: 100% !important;
-                padding: 0;
+                width: 100% !important;
+                padding: 2mm;
                 margin: 0;
-                font-size: 14px;
             }
         }
     </style>
@@ -60,14 +66,15 @@
 
 <div class="ticket">
   <div class="text-center">
+    <!-- Contenedor del Logo -->
     <div id="divLogoContainer" style="display: none;">
         <img id="imgLogo" class="store-logo" src="" alt="Logo Negocio">
     </div>
     <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
-    <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
+    <div style="font-size: 12px;">Comanda / Nota de Consumo</div>
     <div class="store-info" id="lblTelefono"></div>
     <div class="store-info" id="lblDomicilio"></div>
-    <div style="font-size: 10px;">--------------------------------</div>
+    <div style="font-size: 11px; margin-top: 4px;">--------------------------------</div>
   </div>
 
   <div class="ticket-info" style="margin-top: 6px;">
@@ -100,7 +107,7 @@
 
   <div class="divider"></div>
 
-  <div class="text-center footer" style="font-size: 11px;">
+  <div class="text-center footer" style="font-size: 12px;">
     <p>¡Gracias por su preferencia!</p>
     <p>Conserve este ticket</p>
   </div>
