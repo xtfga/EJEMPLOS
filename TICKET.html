@@ -6,52 +6,52 @@
     <title>Ticket de Venta</title>
     <style>
         body {
-            background-color: #e2e8f0;
+            background-color: #cbd5e1;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            align-items: flex-start;
             margin: 0;
             padding: 10px;
         }
         .ticket {
             background: #ffffff;
             width: 100%;
-            max-width: 320px;
-            padding: 20px 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            border-radius: 4px;
+            max-width: 280px;
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             color: #000000;
             box-sizing: border-box;
+            font-size: 15px; /* Letra clara y visible */
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        h2, h3, p { margin: 4px 0; }
-        .store-logo { max-width: 120px; max-height: 60px; margin-bottom: 5px; object-fit: contain; }
-        .store-name { font-size: 16px; font-weight: bold; }
-        .store-info { font-size: 11px; display: none; }
-        .ticket-info, .totals, .footer { font-size: 12px; margin-bottom: 10px; }
-        .divider { border-top: 1px dashed #000000; margin: 10px 0; }
-        .items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .items-table th { border-bottom: 1px solid #000000; text-align: left; padding-bottom: 4px; }
+        p { margin: 3px 0; }
+        .store-logo { max-width: 120px; max-height: 60px; margin-bottom: 4px; object-fit: contain; }
+        .store-name { font-size: 18px; font-weight: bold; }
+        .store-info { font-size: 12px; display: none; }
+        .ticket-info, .footer { font-size: 12px; margin-bottom: 6px; }
+        .divider { border-top: 1px dashed #000000; margin: 6px 0; }
+        .items-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        .items-table th { border-bottom: 1px solid #000000; text-align: left; padding-bottom: 3px; font-size: 13px; }
         .items-table td { padding: 4px 0; vertical-align: top; white-space: pre-wrap; }
-        .total-row { font-weight: bold; font-size: 14px; }
-        .status-badge { font-weight: bold; text-align: center; margin: 10px 0; padding: 4px; border: 1px dashed #000; font-size: 11px; }
+        .total-row { font-weight: bold; font-size: 17px; }
+        .status-badge { font-weight: bold; text-align: center; margin: 6px 0; padding: 4px; border: 1px dashed #000; font-size: 12px; }
 
-        /* REGLAS PARA LA IMPRESORA (Oculta fondos grises y ajusta márgenes) */
+        /* ESTRICTO PARA EL MOMENTO DE IMPRIMIR */
         @media print {
             body {
                 background-color: #ffffff;
-                display: block;
                 padding: 0;
+                margin: 0;
             }
             .ticket {
                 box-shadow: none;
-                max-width: 100%;
-                width: 100%;
+                width: 100% !important;
+                max-width: 100% !important;
                 padding: 0;
                 margin: 0;
+                font-size: 14px;
             }
         }
     </style>
@@ -60,7 +60,6 @@
 
 <div class="ticket">
   <div class="text-center">
-    <!-- Contenedor del Logo -->
     <div id="divLogoContainer" style="display: none;">
         <img id="imgLogo" class="store-logo" src="" alt="Logo Negocio">
     </div>
@@ -68,10 +67,10 @@
     <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
     <div class="store-info" id="lblTelefono"></div>
     <div class="store-info" id="lblDomicilio"></div>
-    <div style="font-size: 10px; margin-top: 4px;">--------------------------------</div>
+    <div style="font-size: 10px;">--------------------------------</div>
   </div>
 
-  <div class="ticket-info" style="margin-top: 8px;">
+  <div class="ticket-info" style="margin-top: 6px;">
     <div><strong>Mesa/Etiqueta:</strong> <span id="lblEtiqueta">--</span></div>
     <div><strong>Fecha:</strong> <span id="lblFecha">--</span></div>
   </div>
@@ -125,7 +124,6 @@
     let itemsParam = obtenerParametro('items');
     let logoUrl = obtenerParametro('logo');
 
-    // Mostrar Logo si viene en la URL
     if (logoUrl && logoUrl.trim() !== '') {
         let img = document.getElementById('imgLogo');
         img.src = logoUrl;
@@ -185,11 +183,10 @@
         tbody.appendChild(tr);
     }
 
-    // LANZAR LA IMPRESIÓN AUTOMÁTICAMENTE CUANDO CARGUE LA PÁGINA
     window.onload = function() {
         setTimeout(function() {
             window.print();
-        }, 500); // Pequeño retraso de medio segundo para asegurar que cargue bien la imagen del logo antes de imprimir
+        }, 500);
     };
 </script>
 
