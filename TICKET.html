@@ -38,6 +38,22 @@
         .items-table td { padding: 4px 0; vertical-align: top; white-space: pre-wrap; }
         .total-row { font-weight: bold; font-size: 14px; }
         .status-badge { font-weight: bold; text-align: center; margin: 10px 0; padding: 4px; border: 1px dashed #000; font-size: 11px; }
+
+        /* REGLAS PARA LA IMPRESORA (Oculta fondos grises y ajusta márgenes) */
+        @media print {
+            body {
+                background-color: #ffffff;
+                display: block;
+                padding: 0;
+            }
+            .ticket {
+                box-shadow: none;
+                max-width: 100%;
+                width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -143,10 +159,8 @@
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
             if (textoLimpio !== '') {
-                // Reemplaza de forma directa cualquier asterisco por un espacio
                 let textoSinAsterisco = textoLimpio.split('*').join(' ');
                 
-                // Separa la última parte para ponerle el signo de pesos ($)
                 let partes = textoSinAsterisco.trim().split(' ');
                 let ultimoElemento = partes[partes.length - 1];
                 
@@ -170,6 +184,13 @@
         tr.appendChild(td);
         tbody.appendChild(tr);
     }
+
+    // LANZAR LA IMPRESIÓN AUTOMÁTICAMENTE CUANDO CARGUE LA PÁGINA
+    window.onload = function() {
+        setTimeout(function() {
+            window.print();
+        }, 500); // Pequeño retraso de medio segundo para asegurar que cargue bien la imagen del logo antes de imprimir
+    };
 </script>
 
 </body>
