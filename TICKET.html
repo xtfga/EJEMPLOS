@@ -38,27 +38,30 @@
         .total-row { font-weight: bold; font-size: 17px; }
         .status-badge { font-weight: bold; text-align: center; margin: 6px 0; padding: 4px; border: 1px dashed #000; font-size: 12px; }
 
-        /* CORRECCIÓN FINAL PARA QUE LA IMPRESORA CORTE EXACTO */
+        /* REGLAS ABSOLUTAS PARA CORTAR EL ESPACIO EN BLANCO EN LA IMPRESIÓN */
         @media print {
             @page {
-                size: 80mm auto;
+                size: 80mm 150mm; /* Forzamos un alto máximo controlado y cerrado */
                 margin: 0;
             }
-            body, html {
+            html, body {
                 width: 80mm;
-                height: 100%;
-                background-color: #ffffff;
+                height: max-content !important;
+                max-height: 100% !important;
+                background-color: #ffffff !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                display: block !important; /* Desactiva el flexbox que estira la hoja */
             }
             .ticket {
-                box-shadow: none;
+                box-shadow: none !important;
                 width: 80mm !important;
                 max-width: 100% !important;
                 padding: 2mm !important;
                 margin: 0 !important;
-                page-break-after: avoid;
-                break-after: avoid;
+                position: absolute;
+                top: 0;
+                left: 0;
             }
         }
     </style>
