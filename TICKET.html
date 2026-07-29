@@ -10,47 +10,53 @@
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 5px;
         }
         .ticket {
             background: #ffffff;
             width: 100%;
-            max-width: 320px;
-            padding: 20px 15px;
+            max-width: 300px;
+            padding: 10px 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             border-radius: 4px;
             color: #000000;
             box-sizing: border-box;
+            font-size: 14px; /* Letras más legibles y grandes */
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         h2, h3, p { margin: 4px 0; }
-        .store-logo { max-width: 120px; max-height: 60px; margin-bottom: 5px; object-fit: contain; }
-        .store-name { font-size: 16px; font-weight: bold; }
-        .store-info { font-size: 11px; display: none; }
-        .ticket-info, .totals, .footer { font-size: 12px; margin-bottom: 10px; }
-        .divider { border-top: 1px dashed #000000; margin: 10px 0; }
-        .items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .store-logo { max-width: 130px; max-height: 70px; margin-bottom: 5px; object-fit: contain; }
+        .store-name { font-size: 18px; font-weight: bold; } /* Nombre del negocio más destacado */
+        .store-info { font-size: 13px; display: none; }
+        .ticket-info, .totals, .footer { font-size: 13px; margin-bottom: 8px; }
+        .divider { border-top: 1px dashed #000000; margin: 8px 0; }
+        .items-table { width: 100%; border-collapse: collapse; font-size: 14px; } /* Texto de los tacos más grande */
         .items-table th { border-bottom: 1px solid #000000; text-align: left; padding-bottom: 4px; }
-        .items-table td { padding: 4px 0; vertical-align: top; white-space: pre-wrap; }
-        .total-row { font-weight: bold; font-size: 14px; }
-        .status-badge { font-weight: bold; text-align: center; margin: 10px 0; padding: 4px; border: 1px dashed #000; font-size: 11px; }
+        .items-table td { padding: 5px 0; vertical-align: top; white-space: pre-wrap; }
+        .total-row { font-weight: bold; font-size: 16px; } /* Total más grande */
+        .status-badge { font-weight: bold; text-align: center; margin: 8px 0; padding: 5px; border: 1px dashed #000; font-size: 12px; }
 
-        /* REGLAS PARA LA IMPRESORA (Oculta fondos grises y ajusta márgenes) */
+        /* CONFIGURACIÓN EXCLUSIVA PARA LA IMPRESORA TÉRMICA */
         @media print {
+            @page {
+                size: 80mm auto; /* Ajusta el ancho a papel térmico estándar de 80mm */
+                margin: 0;       /* Elimina márgenes de hoja carta */
+            }
             body {
                 background-color: #ffffff;
                 display: block;
                 padding: 0;
+                margin: 0;
             }
             .ticket {
                 box-shadow: none;
-                max-width: 100%;
-                width: 100%;
-                padding: 0;
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 2mm;
                 margin: 0;
             }
         }
@@ -65,13 +71,13 @@
         <img id="imgLogo" class="store-logo" src="" alt="Logo Negocio">
     </div>
     <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
-    <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
+    <div style="font-size: 12px;">Comanda / Nota de Consumo</div>
     <div class="store-info" id="lblTelefono"></div>
     <div class="store-info" id="lblDomicilio"></div>
-    <div style="font-size: 10px; margin-top: 4px;">--------------------------------</div>
+    <div style="font-size: 11px; margin-top: 4px;">--------------------------------</div>
   </div>
 
-  <div class="ticket-info" style="margin-top: 8px;">
+  <div class="ticket-info" style="margin-top: 6px;">
     <div><strong>Mesa/Etiqueta:</strong> <span id="lblEtiqueta">--</span></div>
     <div><strong>Fecha:</strong> <span id="lblFecha">--</span></div>
   </div>
@@ -101,7 +107,7 @@
 
   <div class="divider"></div>
 
-  <div class="text-center footer" style="font-size: 11px;">
+  <div class="text-center footer" style="font-size: 12px;">
     <p>¡Gracias por su preferencia!</p>
     <p>Conserve este ticket</p>
   </div>
@@ -125,7 +131,6 @@
     let itemsParam = obtenerParametro('items');
     let logoUrl = obtenerParametro('logo');
 
-    // Mostrar Logo si viene en la URL
     if (logoUrl && logoUrl.trim() !== '') {
         let img = document.getElementById('imgLogo');
         img.src = logoUrl;
@@ -185,11 +190,10 @@
         tbody.appendChild(tr);
     }
 
-    // LANZAR LA IMPRESIÓN AUTOMÁTICAMENTE CUANDO CARGUE LA PÁGINA
     window.onload = function() {
         setTimeout(function() {
             window.print();
-        }, 500); // Pequeño retraso de medio segundo para asegurar que cargue bien la imagen del logo antes de imprimir
+        }, 500);
     };
 </script>
 
