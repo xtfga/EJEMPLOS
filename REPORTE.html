@@ -175,14 +175,20 @@
 
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
+            
+            // LIMPIEZA AGRESIVA: Elimina cualquier coma o espacio sobrante al inicio
+            while (textoLimpio.startsWith(',') || textoLimpio.startsWith(' ')) {
+                textoLimpio = textoLimpio.substring(1).trim();
+            }
+
             if (textoLimpio !== '') {
                 let partes = textoLimpio.split(/\s+/);
                 
-                // Extraemos la fecha (último elemento: ej. 06/08/2026 o 2026-08-06)
+                // Extraemos la fecha (último elemento)
                 let fechaCruda = partes.pop() || 'Sin Fecha';
                 let fechaLimpia = fechaCruda.split('T')[0].split(' ')[0];
 
-                // Extraemos el subtotal/precio (penúltimo elemento, empieza con $)
+                // Extraemos el subtotal/precio (penúltimo elemento)
                 let precioCrudo = partes.pop();
                 let precioFormateado = '';
                 
@@ -210,7 +216,6 @@
         });
 
         // Ordenar las fechas de forma descendente (más reciente primero)
-        // Maneja tanto formato DD/MM/YYYY como YYYY-MM-DD
         let fechasOrdenadas = Object.keys(agrupadosPorFecha).sort((a, b) => {
             let parseDate = (d) => {
                 if (d.includes('/')) {
