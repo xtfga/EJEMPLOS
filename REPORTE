@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket de Venta</title>
+    <style>
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+            padding: 10px;
+        }
+        .ticket {
+            background: #ffffff;
+            width: 100%;
+            max-width: 280px;
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            color: #000000;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        p { margin: 3px 0; }
+        .store-logo { max-width: 120px; max-height: 60px; margin-bottom: 4px; object-fit: contain; }
+        .store-name { font-size: 18px; font-weight: bold; }
+        .store-info { font-size: 12px; display: none; }
+        .ticket-info, .footer { font-size: 12px; margin-bottom: 6px; }
+        .divider { border-top: 1px dashed #000000; margin: 6px 0; }
+        .items-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .items-table th { border-bottom: 1px solid #000000; text-align: left; padding-bottom: 3px; font-size: 13px; }
+        .items-table td { padding: 3px 0; vertical-align: top; }
+        
+        /* Estilos para la agrupación por fecha */
+        .date-header {
+            font-weight: bold;
+            font-size: 13px;
+            background-color: #f1f5f9;
+            padding: 4px 2px;
+            margin-top: 6px;
+            border-bottom: 1px solid #000;
+        }
+        
+        .total-row { font-weight: bold; font-size: 17px; }
+        .status-badge { font-weight: bold; text-align: center; margin: 6px 0; padding: 4px; border: 1px dashed #000; font-size: 12px; }
+
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+                margin: 0;
+            }
+            .ticket {
+                box-shadow: none;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0;
+                margin: 0;
+                font-size: 14px;
+            }
+            .date-header {
+                background-color: #ffffff !important;
+                border-bottom: 1px solid #000;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ticket">
+  <div class="text-center">
+    <div id="divLogoContainer" style="display: none;">
+        <img id="imgLogo" class="store-logo" src="" alt="Logo Negocio">
+    </div>
+    <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
+    <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
+    <div class="store-info" id="lblTelefono"></div>
+    <div class="store-info" id="lblDomicilio"></div>
+    <div style="font-size: 10px;">--------------------------------</div>
+  </div>
+
+  <div class="ticket-info" style="margin-top: 6px;">
+    <div><strong>Mesa/Etiqueta:</strong> <span id="lblEtiqueta">--</span></div>
+    <div><strong>Fecha Ticket:</strong> <span id="lblFecha">--</span></div>
+  </div>
+
+  <div id="divEstatus" class="status-badge">ESTADO: PENDIENTE</div>
+
+  <div class="divider"></div>
+
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th>CANT / DESCRIPCIÓN / PRECIO</th>
+      </tr>
+    </thead>
+    <tbody id="tablaItems">
+    </tbody>
+  </table>
+
+  <div class="divider"></div>
+
+  <table class="items-table">
+    <tr class="total-row">
+      <td>TOTAL A PAGAR:</td>
+      <td class="text-right" id="lblTotal">$0.00</td>
+    </tr>
+  </table>
+
+  <div class="divider"></div>
+
+  <div class="text-center footer" style="font-size: 11px;">
+    <p>¡Gracias por su preferencia!</p>
+    <p>Conserve este ticket</p>
+  </div>
+</div>
+
+<script>
+    function obtenerParametro(nombre) {
+        let url = window.location.href;
+        let regex = new RegExp('[?&]' + nombre + '=([^&#]*)', 'i');
+        let resultado = regex.exec(url);
+        return resultado ? decodeURIComponent(resultado[1].replace(/\+/g, ' ')) : '';
+    }
+
+    let negocio = obtenerParametro('negocio');
+    let telefono = obtenerParametro('telefono');
+    let domicilio = obtenerParametro('domicilio');
+    let etiqueta = obtenerParametro('etiqueta');
+    let fecha = obtenerParametro('fecha');
+    let total = obtenerParametro('total');
+    let estatus = obtenerParametro('estatus');
+    let itemsParam = obtenerParametro('items');
+    let logoUrl = obtenerParametro('logo');
+
+    if (logoUrl && logoUrl.trim() !== '') {
+        let img = document.getElementById('imgLogo');
+        img.src = logoUrl;
+        document.getElementById('divLogoContainer').style.display = 'block';
+    }
+
+    document.getElementById('lblNegocio').innerText = negocio || 'SISTEMA DE VENTAS';
+    
+    if(telefono) {
+        let elTel = document.getElementById('lblTelefono');
+        elTel.innerText = 'Tel: ' + telefono;
+        elTel.style.display = 'block';
+    }
+    
+    if(domicilio) {
+        let elDom = document.getElementById('lblDomicilio');
+        elDom.innerText = domicilio;
+        elDom.style.display = 'block';
+    }
+
+    document.getElementById('lblEtiqueta').innerText = etiqueta || 'MOSTRADOR';
+    document.getElementById('lblFecha').innerText = fecha || '--';
+    document.getElementById('lblTotal').innerText = '$' + (total || '0.00');
+    document.getElementById('divEstatus').innerText = 'ESTADO: ' + (estatus ? estatus.toUpperCase() : 'PENDIENTE');
+
+    let tbody = document.getElementById('tablaItems');
+    tbody.innerHTML = '';
+
+    if (itemsParam) {
+        let listaItems = itemsParam.split('|');
+        let agrupadosPorFecha = {};
+
+        listaItems.forEach(item => {
+            let textoLimpio = item.trim();
+            if (textoLimpio !== '') {
+                // Limpiamos asteriscos que AppSheet suele mandar en concatenaciones
+                let textoSinAsterisco = textoLimpio.split('*').join(' ');
+                let partes = textoSinAsterisco.trim().split(/\s+/);
+                
+                // Asumimos el formato de AppSheet: cantidad, producto..., precio, fecha
+                // Extraemos la fecha (último elemento o penúltimo si trae hora)
+                let fechaCruda = partes.pop() || 'Sin Fecha';
+                // Si la fecha incluye hora (ej. 2026-06-06 14:30:00 o similar con T), extraemos solo la parte YYYY-MM-DD
+                let fechaLimpia = fechaCruda.split('T')[0].split(' ')[0];
+
+                let precioCrudo = partes.pop();
+                let precioFormateado = '';
+                
+                if (!isNaN(precioCrudo) && precioCrudo !== '') {
+                    precioFormateado = '$' + Number(precioCrudo).toFixed(2);
+                } else {
+                    if (precioCrudo) partes.push(precioCrudo);
+                    precioFormateado = '';
+                }
+
+                let descripcionItem = partes.join(' ');
+
+                if (!agrupadosPorFecha[fechaLimpia]) {
+                    agrupadosPorFecha[fechaLimpia] = [];
+                }
+
+                agrupadosPorFecha[fechaLimpia].push({
+                    texto: descripcionItem,
+                    precio: precioFormateado
+                });
+            }
+        });
+
+        // Ordenar las fechas de forma descendente (más reciente primero)
+        let fechasOrdenadas = Object.keys(agrupadosPorFecha).sort((a, b) => {
+            return new Date(b) - new Date(a);
+        });
+
+        // Construir las filas de la tabla agrupadas por fecha
+        fechasOrdenadas.forEach(fec => {
+            // Fila de encabezado de fecha
+            let trHeader = document.createElement('tr');
+            let tdHeader = document.createElement('td');
+            tdHeader.setAttribute('colspan', '2');
+            tdHeader.className = 'date-header';
+            tdHeader.innerText = 'FECHA: ' + fec;
+            trHeader.appendChild(tdHeader);
+            tbody.appendChild(trHeader);
+
+            // Filas de los productos de esa fecha
+            agrupadosPorFecha[fec].forEach(prod => {
+                let tr = document.createElement('tr');
+                let td = document.createElement('td');
+                td.style.paddingLeft = '10px';
+                td.innerText = `${prod.texto} ${prod.precio}`;
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+            });
+        });
+
+    } else {
+        let tr = document.createElement('tr');
+        let td = document.createElement('td');
+        td.innerText = "Sin items registrados";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    }
+
+    window.onload = function() {
+        setTimeout(function() {
+            window.print();
+        }, 500);
+    };
+</script>
+
+</body>
+</html>
