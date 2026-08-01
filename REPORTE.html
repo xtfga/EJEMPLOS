@@ -47,7 +47,7 @@
         }
         
         .total-row { font-weight: bold; font-size: 17px; }
-        .status-badge { font-weight: bold; text-align: center; margin: 6px 0; padding: 4px; border: 1px dashed #000; font-size: 12px; }
+        .status-badge { font-weight: bold; text-align: center; margin: 6px 0; padding: 4px; border: 1px dashed #000; font-size: 12px; display: none; }
 
         @media print {
             body {
@@ -78,15 +78,14 @@
         <img id="imgLogo" class="store-logo" src="" alt="Logo Negocio">
     </div>
     <div class="store-name" id="lblNegocio">SISTEMA DE VENTAS</div>
-    <div style="font-size: 11px;">Comanda / Nota de Consumo</div>
+    <div style="font-size: 11px;">Reporte de Consumo</div>
     <div class="store-info" id="lblTelefono"></div>
     <div class="store-info" id="lblDomicilio"></div>
     <div style="font-size: 10px;">--------------------------------</div>
   </div>
 
   <div class="ticket-info" style="margin-top: 6px;">
-    <div><strong>Mesa/Etiqueta:</strong> <span id="lblEtiqueta">--</span></div>
-    <div><strong>Fecha Ticket:</strong> <span id="lblFecha">--</span></div>
+    <div><strong>Periodo:</strong> <span id="lblFecha">--</span></div>
   </div>
 
   <div id="divEstatus" class="status-badge">ESTADO: PENDIENTE</div>
@@ -107,7 +106,7 @@
 
   <table class="items-table">
     <tr class="total-row">
-      <td>TOTAL A PAGAR:</td>
+      <td>TOTAL:</td>
       <td class="text-right" id="lblTotal">$0.00</td>
     </tr>
   </table>
@@ -158,10 +157,14 @@
         elDom.style.display = 'block';
     }
 
-    document.getElementById('lblEtiqueta').innerText = etiqueta || 'MOSTRADOR';
     document.getElementById('lblFecha').innerText = fecha || '--';
     document.getElementById('lblTotal').innerText = '$' + (total || '0.00');
-    document.getElementById('divEstatus').innerText = 'ESTADO: ' + (estatus ? estatus.toUpperCase() : 'PENDIENTE');
+    
+    if(estatus && estatus.trim() !== '') {
+        let elEstatus = document.getElementById('divEstatus');
+        elEstatus.innerText = 'ESTADO: ' + estatus.toUpperCase();
+        elEstatus.style.display = 'block';
+    }
 
     let tbody = document.getElementById('tablaItems');
     tbody.innerHTML = '';
@@ -173,24 +176,24 @@
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
             if (textoLimpio !== '') {
-                // Limpiamos asteriscos que AppSheet suele mandar en concatenaciones
-                let textoSinAsterisco = textoLimpio.split('*').join(' ');
-                let partes = textoSinAsterisco.trim().split(/\s+/);
+                let partes = textoLimpio.split(/\s+/);
                 
-                // Asumimos el formato de AppSheet: cantidad, producto..., precio, fecha
-                // Extraemos la fecha (último elemento o penúltimo si trae hora)
+                // Extraemos la fecha (último elemento: ej. 06/08/2026 o 2026-08-06)
                 let fechaCruda = partes.pop() || 'Sin Fecha';
-                // Si la fecha incluye hora (ej. 2026-06-06 14:30:00 o similar con T), extraemos solo la parte YYYY-MM-DD
                 let fechaLimpia = fechaCruda.split('T')[0].split(' ')[0];
 
+                // Extraemos el subtotal/precio (penúltimo elemento, empieza con $)
                 let precioCrudo = partes.pop();
                 let precioFormateado = '';
                 
-                if (!isNaN(precioCrudo) && precioCrudo !== '') {
-                    precioFormateado = '$' + Number(precioCrudo).toFixed(2);
-                } else {
-                    if (precioCrudo) partes.push(precioCrudo);
-                    precioFormateado = '';
+                if (precioCrudo) {
+                    let limpioNum = precioCrudo.replace('$', '');
+                    if (!isNaN(limpioNum) && limpioNum !== '') {
+                        precioFormateado = '$' + Number(limpioNum).toFixed(2);
+                    } else {
+                        partes.push(precioCrudo);
+                        precioFormateado = '';
+                    }
                 }
 
                 let descripcionItem = partes.join(' ');
@@ -207,13 +210,20 @@
         });
 
         // Ordenar las fechas de forma descendente (más reciente primero)
+        // Maneja tanto formato DD/MM/YYYY como YYYY-MM-DD
         let fechasOrdenadas = Object.keys(agrupadosPorFecha).sort((a, b) => {
-            return new Date(b) - new Date(a);
+            let parseDate = (d) => {
+                if (d.includes('/')) {
+                    let p = d.split('/');
+                    return new Date(`${p[2]}-${p[1]}-${p[0]}`);
+                }
+                return new Date(d);
+            };
+            return parseDate(b) - parseDate(a);
         });
 
         // Construir las filas de la tabla agrupadas por fecha
         fechasOrdenadas.forEach(fec => {
-            // Fila de encabezado de fecha
             let trHeader = document.createElement('tr');
             let tdHeader = document.createElement('td');
             tdHeader.setAttribute('colspan', '2');
@@ -222,7 +232,6 @@
             trHeader.appendChild(tdHeader);
             tbody.appendChild(trHeader);
 
-            // Filas de los productos de esa fecha
             agrupadosPorFecha[fec].forEach(prod => {
                 let tr = document.createElement('tr');
                 let td = document.createElement('td');
