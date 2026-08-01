@@ -170,13 +170,19 @@
     tbody.innerHTML = '';
 
     if (itemsParam) {
-        let listaItems = itemsParam.split('|');
+        // Limpiamos desde el inicio cualquier coma sobrante que AppSheet inyecte al concatenar la lista
+        let textoLimpioParam = itemsParam.trim();
+        while (textoLimpioParam.startsWith(',') || textoLimpioParam.startsWith(' ')) {
+            textoLimpioParam = textoLimpioParam.substring(1).trim();
+        }
+
+        let listaItems = textoLimpioParam.split('|');
         let agrupadosPorFecha = {};
 
         listaItems.forEach(item => {
             let textoLimpio = item.trim();
             
-            // LIMPIEZA AGRESIVA: Elimina cualquier coma o espacio sobrante al inicio
+            // Limpieza profunda por cada segmento dividido por la pleca
             while (textoLimpio.startsWith(',') || textoLimpio.startsWith(' ')) {
                 textoLimpio = textoLimpio.substring(1).trim();
             }
@@ -184,11 +190,9 @@
             if (textoLimpio !== '') {
                 let partes = textoLimpio.split(/\s+/);
                 
-                // Extraemos la fecha (último elemento)
                 let fechaCruda = partes.pop() || 'Sin Fecha';
                 let fechaLimpia = fechaCruda.split('T')[0].split(' ')[0];
 
-                // Extraemos el subtotal/precio (penúltimo elemento)
                 let precioCrudo = partes.pop();
                 let precioFormateado = '';
                 
@@ -203,6 +207,11 @@
                 }
 
                 let descripcionItem = partes.join(' ');
+                
+                // Limpieza extra por si quedó alguna coma suelta al principio de la descripción
+                while (descripcionItem.startsWith(',') || descripcionItem.startsWith(' ')) {
+                    descripcionItem = descripcionItem.substring(1).trim();
+                }
 
                 if (!agrupadosPorFecha[fechaLimpia]) {
                     agrupadosPorFecha[fechaLimpia] = [];
@@ -215,7 +224,6 @@
             }
         });
 
-        // Ordenar las fechas de forma descendente (más reciente primero)
         let fechasOrdenadas = Object.keys(agrupadosPorFecha).sort((a, b) => {
             let parseDate = (d) => {
                 if (d.includes('/')) {
@@ -227,7 +235,6 @@
             return parseDate(b) - parseDate(a);
         });
 
-        // Construir las filas de la tabla agrupadas por fecha
         fechasOrdenadas.forEach(fec => {
             let trHeader = document.createElement('tr');
             let tdHeader = document.createElement('td');
